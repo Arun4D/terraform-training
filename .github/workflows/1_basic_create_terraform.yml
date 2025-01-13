@@ -62,7 +62,7 @@ jobs:
 
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIRECTORY }}
-      run: terraform plan -out main.tfplan -var-file="${{ env.WORKING_DIRECTORY }}/terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
+      run: terraform plan -out main.tfplan -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIRECTORY }}
