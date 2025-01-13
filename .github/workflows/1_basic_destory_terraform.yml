@@ -1,4 +1,4 @@
-name: 1_basic destory
+name: 1_basic Destroy
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: 2_module_example destory
+name: 2_module_example Destroy
 
 on:
   workflow_dispatch:
