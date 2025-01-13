@@ -22,6 +22,7 @@ env:
   TF_VERSION: '1.5.6' # Adjust the version as per your requirement
   WORKING_DIRECTORY: './1_basic' # Path to your Terraform configuration directory
   PIPELINE_NAME: 'basic'
+  LOCATION: ${{ github.event.inputs.location }}"
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -56,7 +57,7 @@ jobs:
         RESOURCE_GROUP_NAME="terraform-backend-rg"
         STORAGE_ACCOUNT_NAME="tfbackend${{ env.PIPELINE_NAME }}"
         CONTAINER_NAME="tfstate"
-        LOCATION="${{ env.location }}"
+        LOCATION="${{ env.LOCATION }}"
 
         az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
         az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
