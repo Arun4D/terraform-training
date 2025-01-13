@@ -30,20 +30,20 @@ export ARM_SUBSCRIPTION_ID = ""
    terraform init
    ```
 3. **Validate Terraform**:
-   Run the following command to initialize the Terraform configuration:
+   Run the following command to validate the Terraform configuration:
    ```
    terraform validate
    terraform validate -json
    ```
 
-3. **Plan the deployment**:
+4. **Plan the deployment**:
    To see what resources will be created, run:
    ```
    terraform plan -out main.tfplan -var="resource_group_name=example_rg"
    terraform show -json main.tfplan
    ```
 
-4. **Apply the configuration**:
+5. **Apply the configuration**:
    To create the resource group, execute:
    ```
    terraform apply main.tfplan
