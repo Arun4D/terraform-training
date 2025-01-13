@@ -41,6 +41,10 @@ jobs:
       working-directory: ${{ env.WORKING_DIRECTORY }}
       run: terraform init
 
+    - name: Terraform Validate
+      working-directory: ${{ env.WORKING_DIRECTORY }}
+      run: terraform validate
+
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIRECTORY }}
       run: terraform plan -out main.tfplan
@@ -48,4 +52,3 @@ jobs:
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIRECTORY }}
       run: terraform apply main.tfplan
-      run: terraform apply -auto-approve tfplan
