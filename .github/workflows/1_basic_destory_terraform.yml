@@ -1,12 +1,6 @@
-name: 1_basic create
+name: 1_basic destory
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:
