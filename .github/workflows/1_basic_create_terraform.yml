@@ -19,6 +19,7 @@ env:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}
 
     steps:
     - name: Checkout repository
