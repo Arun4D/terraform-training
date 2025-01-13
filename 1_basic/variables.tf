@@ -8,5 +8,3 @@ variable "location" {
   type        = string
   default     = "East US"
 }
-
-variable "subscription_id" {}

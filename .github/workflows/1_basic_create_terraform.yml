@@ -57,7 +57,9 @@ jobs:
 
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIRECTORY }}
-      run: terraform plan -out main.tfplan -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
+      env:
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      run: terraform plan -out main.tfplan -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIRECTORY }}
