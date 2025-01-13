@@ -51,7 +51,7 @@ jobs:
       run: |
         echo "Inputs: ${{ toJson(github.event.inputs) }}"
         echo "Environment: ${{ github.event.inputs.environment }}"
-        
+
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIRECTORY }}
       run: terraform init
@@ -61,8 +61,8 @@ jobs:
       run: terraform validate
 
     - name: Terraform Plan
-      working-directory: ${{ env.WORKING_DIRECTORY }}${{ env.WORKING_DIRECTORY }}/terraform.${{ github.event.inputs.environment }}.tfvars"
-      run: terraform plan -out main.tfplan -var-file="
+      working-directory: ${{ env.WORKING_DIRECTORY }}
+      run: terraform plan -out main.tfplan -var-file="${{ env.WORKING_DIRECTORY }}/terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIRECTORY }}
