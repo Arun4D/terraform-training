@@ -1,9 +1,9 @@
 name: 2_module_example create
 
 on:
-  push:
-    branches:
-      - main
+#  push:
+#    branches:
+#      - main
   pull_request:
     branches:
       - main
