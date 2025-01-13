@@ -1,4 +1,4 @@
-name: Terraform Deployment to Azure
+name: 1_basic create
 
 on:
   push:
