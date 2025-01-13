@@ -91,11 +91,17 @@ jobs:
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: terraform plan -out main.tfplan -var="location=${{ env.LOCATION }}" -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: terraform apply main.tfplan
