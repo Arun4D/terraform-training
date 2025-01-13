@@ -49,14 +49,14 @@ jobs:
       working-directory: ${{ env.WORKING_DIRECTORY }}
       run: terraform validate
 
-    - name: Terraform Plan Destory
+    - name: Terraform Plan Destroy
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      run: terraform plan -destory -out destory-main.tfplan -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
+      run: terraform plan -destroy -out destroy-main.tfplan -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
 
-    - name: Terraform Apply Destory
+    - name: Terraform Apply Destroy
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      run: terraform apply destory-main.tfplan
+      run: terraform apply destroy-main.tfplan
