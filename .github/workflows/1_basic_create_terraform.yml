@@ -47,13 +47,6 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Set environment variables
-      run: |
-        echo "TF_VAR_subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
-        echo "TF_VAR_client_id=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
-        echo "TF_VAR_client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
-        echo "TF_VAR_tenant_id=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
-
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIRECTORY }}
       run: terraform init
@@ -64,7 +57,7 @@ jobs:
 
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIRECTORY }}
-      run: terraform plan -out main.tfplan -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
+      run: terraform plan -out main.tfplan -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIRECTORY }}
