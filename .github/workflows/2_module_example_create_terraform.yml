@@ -17,9 +17,14 @@ on:
 env:
   TF_VERSION: '1.5.6' # Adjust the version as per your requirement
   WORKING_DIRECTORY: './2_module_example' # Path to your Terraform configuration directory
+  LOCATION: ${{ github.event.inputs.location }}
+  RESOURCE_GROUP_NAME: "terraform-backend-rg"
+  STORAGE_ACCOUNT_NAME: "tfbackendbasic"
+  CONTAINER_NAME: "tfstate"
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
 
 permissions:
   id-token: write
@@ -46,9 +51,34 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    - name: Create Azure Storage Account for Backend
+      run: |
+        RESOURCE_GROUP_NAME="${{ env.RESOURCE_GROUP_NAME }}"
+        STORAGE_ACCOUNT_NAME="${{ env.STORAGE_ACCOUNT_NAME }}"
+        CONTAINER_NAME="${{ env.CONTAINER_NAME }}"
+        LOCATION="${{ env.LOCATION }}"
+
+        az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
+        az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
+        ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' --output tsv)
+        az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
+
+        echo "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
+        echo "##vso[task.setvariable variable=CONTAINER_NAME]$CONTAINER_NAME"
+        echo "##vso[task.setvariable variable=ACCOUNT_KEY]$ACCOUNT_KEY"
+
+        echo "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
+        echo "CONTAINER_NAME=$CONTAINER_NAME" >> $GITHUB_ENV
+        echo "ACCOUNT_KEY=$ACCOUNT_KEY" >> $GITHUB_ENV
+
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIRECTORY }}
-      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      run: terraform init -backend-config="storage_account_name=${{ env.STORAGE_ACCOUNT_NAME }}" -backend-config="container_name=${{ env.CONTAINER_NAME }}" -backend-config="resource_group_name=${{ env.RESOURCE_GROUP_NAME }}" -backend-config="key=terraform.tfstate"
 
     - name: Terraform Validate
       working-directory: ${{ env.WORKING_DIRECTORY }}
@@ -57,11 +87,17 @@ jobs:
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      run: terraform plan -out main.tfplan -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      run: terraform plan -out main.tfplan -var="location=${{ env.LOCATION }}" -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars"
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: terraform apply main.tfplan
