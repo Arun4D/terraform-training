@@ -89,7 +89,7 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      run: terraform plan -destroy -out destroy-main.tfplan -var="location=${{ env.LOCATION }}" -var-file="terraform.${{ github.event.pull_request.base.ref == 'main' && 'prod' || 'dev' }}.tfvars" -var-file="../../config/global.tfvars" -var-file="../../config/dev.tfvars"
+      run: terraform plan -destroy -out destroy-main.tfplan -var="location=${{ env.LOCATION }}" -var-file="../../config/global.tfvars" -var-file="../../config/dev.tfvars"
 
     - name: Terraform Apply Destroy
       working-directory: ${{ env.WORKING_DIRECTORY }}
